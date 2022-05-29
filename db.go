@@ -10,6 +10,32 @@ var (
 	json = jsoniter.ConfigCompatibleWithStandardLibrary
 )
 
+func (db *DB) Alive() bool {
+	_, err := db.httpDo("HEAD", "", nil)
+	return err == nil
+}
+
+func (db *DB) Status() (string, error) {
+	data, err := db.httpDo("GET", "", nil)
+	if err != nil {
+		return "", err
+	}
+
+	var resp Resp
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return "", err
+	}
+
+	body := resp.Data.(string)
+	if resp.Code != 200 {
+		return "", errors.New(body)
+	}
+
+	return body, nil
+}
+	
+
 func (db *DB) Read(path string, mod interface{}) error {
 	data, err := db.httpDo("GET", path, nil)
 	if err != nil {
@@ -66,27 +92,6 @@ func (db *DB) Delete(path string) error {
 		return errors.New(resp.Data.(string))
 	}
 	return nil
-}
-
-func (db *DB) Exist(path string) (bool, error) {
-	data, err := db.httpDo("HEAD", path, nil)
-	if err != nil {
-		return false, err
-	}
-
-	var resp Resp
-	err = json.Unmarshal(data, &resp)
-	if err != nil {
-		return false, err
-	}
-	if resp.Code == 200 {
-		exist, ok := resp.Data.(bool)
-		if ok {
-			return exist, nil
-		}
-		return false, errors.New("data type error")
-	}
-	return false, errors.New(resp.Data.(string))
 }
 
 func (db *DB) Cols(dbName string) ([]string, error) {
