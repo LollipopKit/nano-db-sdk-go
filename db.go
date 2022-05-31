@@ -116,7 +116,7 @@ func (db *DB) Cols(dbName string) ([]string, error) {
 	return nil, errors.New("data type error: " + resp.Data.(string))
 }
 
-func (db *DB) Ids(dbName, col string) ([]string, error) {
+func (db *DB) Files(dbName, col string) ([]string, error) {
 	data, err := db.httpDo("GET", dbName+"/"+col, nil)
 	if err != nil {
 		return nil, err
