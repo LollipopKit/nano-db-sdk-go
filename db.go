@@ -6,8 +6,13 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
+const (
+	errNoDocStr = "db.Read(): no document"
+)
+
 var (
 	json = jsoniter.ConfigCompatibleWithStandardLibrary
+	ErrNoDoc = errors.New("db.Read(): no document")
 )
 
 func (db *DB) Alive() bool {
@@ -48,7 +53,11 @@ func (db *DB) Read(path string, mod interface{}) error {
 		return err
 	}
 	if resp.Code != 200 {
-		return errors.New(resp.Data.(string))
+		errStr := resp.Data.(string)
+		if errStr == errNoDocStr {
+			return ErrNoDoc
+		}
+		return errors.New(errStr)
 	}
 
 	data, err = json.Marshal(resp.Data)
