@@ -119,8 +119,14 @@ func (db *DB) Cols(dbName string) ([]string, error) {
 		return nil, errors.New(resp.Data.(string))
 	}
 
-	cols, ok := resp.Data.([]string)
-	if ok {
+	colsStr, err := json.Marshal(resp.Data)
+	if err != nil {
+		return nil, err
+	}
+
+	var cols []string
+	err = json.Unmarshal(colsStr, &cols)
+	if err == nil {
 		return cols, nil
 	}
 	return nil, errors.New(fmt.Sprintf("data type error: %v", resp.Data))
@@ -141,10 +147,17 @@ func (db *DB) Files(dbName, col string) ([]string, error) {
 		return nil, errors.New(resp.Data.(string))
 	}
 
-	ids, ok := resp.Data.([]string)
-	if ok {
-		return ids, nil
+	filesStr, err := json.Marshal(resp.Data)
+	if err != nil {
+		return nil, err
 	}
+
+	var files []string
+	err = json.Unmarshal(filesStr, &files)
+	if err == nil {
+		return files, nil
+	}
+
 	return nil, errors.New("data type error: " + resp.Data.(string))
 }
 
