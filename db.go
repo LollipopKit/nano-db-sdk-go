@@ -2,6 +2,7 @@ package nanodbsdkgo
 
 import (
 	"errors"
+	"fmt"
 
 	jsoniter "github.com/json-iterator/go"
 )
@@ -122,7 +123,7 @@ func (db *DB) Cols(dbName string) ([]string, error) {
 	if ok {
 		return cols, nil
 	}
-	return nil, errors.New("data type error: " + resp.Data.(string))
+	return nil, errors.New(fmt.Sprintf("data type error: %v", resp.Data))
 }
 
 func (db *DB) Files(dbName, col string) ([]string, error) {
