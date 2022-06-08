@@ -13,6 +13,7 @@ var (
 
 func (db *DB) httpDo(fn, path string, body []byte) (data []byte, err error) {
 	path = strings.Trim(path, "/")
+	path = strings.ReplaceAll(path, "//", "/")
 	req, err := http.NewRequest(fn, db.url+path, bytes.NewReader(body))
 	if err != nil {
 		return
