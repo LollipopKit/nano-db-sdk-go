@@ -104,7 +104,7 @@ func (db *DB) Delete(path string) error {
 	return nil
 }
 
-func (db *DB) Cols(dbName string) ([]string, error) {
+func (db *DB) Dirs(dbName string) ([]string, error) {
 	data, err := db.httpDo("GET", dbName, nil)
 	if err != nil {
 		return nil, err
@@ -132,8 +132,8 @@ func (db *DB) Cols(dbName string) ([]string, error) {
 	return nil, errors.New(fmt.Sprintf("data type error: %v", resp.Data))
 }
 
-func (db *DB) Files(dbName, col string) ([]string, error) {
-	data, err := db.httpDo("GET", dbName+"/"+col, nil)
+func (db *DB) Files(dbName, dir string) ([]string, error) {
+	data, err := db.httpDo("GET", dbName+"/"+dir, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -177,8 +177,8 @@ func (db *DB) DeleteDB(dbName string) error {
 	return nil
 }
 
-func (db *DB) DeleteCol(dbName, col string) error {
-	data, err := db.httpDo("DELETE", dbName+"/"+col, nil)
+func (db *DB) DeleteDir(dbName, dir string) error {
+	data, err := db.httpDo("DELETE", dbName+"/"+dir, nil)
 	if err != nil {
 		return err
 	}
