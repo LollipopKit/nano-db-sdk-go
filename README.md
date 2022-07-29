@@ -19,8 +19,12 @@ type Chapter struct {
 
 func main() {
     // 写入数据
-    var chapter1 Chapter
-    chapter1.Title = "第一章"
+    chapter1 := Chapter{
+        title: "1",
+        Id: 1,
+        Cid: 1,
+        Content: "test",
+    }
     err = db.Write("novel/bookname/1.json", chapter1)
     if err != nil {
         panic(err)

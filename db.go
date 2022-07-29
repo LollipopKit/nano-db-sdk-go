@@ -7,13 +7,8 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-const (
-	errNoDocStr = "db.Read(): no document"
-)
-
 var (
 	json = jsoniter.ConfigCompatibleWithStandardLibrary
-	ErrNoDoc = errors.New("db.Read(): no document")
 )
 
 func (db *DB) Alive() bool {
@@ -21,44 +16,41 @@ func (db *DB) Alive() bool {
 	return err == nil
 }
 
-func (db *DB) Status() (string, error) {
+func (db *DB) Status() (status string, err error) {
 	data, err := db.httpDo("GET", "", nil)
 	if err != nil {
-		return "", err
+		return
 	}
 
 	var resp Resp
 	err = json.Unmarshal(data, &resp)
 	if err != nil {
-		return "", err
+		return
 	}
 
-	body := resp.Data.(string)
+	status = resp.Data.(string)
 	if resp.Code != 200 {
-		return "", errors.New(body)
+		err = errors.New(status)
+		return
 	}
 
-	return body, nil
+	return
 }
 	
 
-func (db *DB) Read(path string, mod interface{}) error {
+func (db *DB) Read(path string, mod interface{}) (err error) {
 	data, err := db.httpDo("GET", path, nil)
 	if err != nil {
-		return err
+		return
 	}
 
 	var resp Resp
 	err = json.Unmarshal(data, &resp)
 	if err != nil {
-		return err
+		return
 	}
 	if resp.Code != 200 {
-		errStr := resp.Data.(string)
-		if errStr == errNoDocStr {
-			return ErrNoDoc
-		}
-		return errors.New(errStr)
+		return errors.New(resp.Data.(string))
 	}
 
 	data, err = json.Marshal(resp.Data)
@@ -93,6 +85,7 @@ func (db *DB) Delete(path string) error {
 	if err != nil {
 		return err
 	}
+	
 	var resp Resp
 	err = json.Unmarshal(data, &resp)
 	if err != nil {
@@ -119,15 +112,20 @@ func (db *DB) Dirs(dbName string) ([]string, error) {
 		return nil, errors.New(resp.Data.(string))
 	}
 
-	colsStr, err := json.Marshal(resp.Data)
+	// 这里不能直接用resp.Data.([]string)来转换，因为resp.Data是interface{}类型
+	// 下方Files()方法也是如此
+	// -------------
+	// `go test`表明
+	// 此处用json转换比`resp.Data.([]interface{})`更快
+	dirsStr, err := json.Marshal(resp.Data)
 	if err != nil {
 		return nil, err
 	}
 
-	var cols []string
-	err = json.Unmarshal(colsStr, &cols)
+	var dirs []string
+	err = json.Unmarshal(dirsStr, &dirs)
 	if err == nil {
-		return cols, nil
+		return dirs, nil
 	}
 	return nil, errors.New(fmt.Sprintf("data type error: %v", resp.Data))
 }
