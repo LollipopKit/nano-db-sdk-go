@@ -78,8 +78,16 @@ func TestFiles(t *testing.T) {
 	t.Logf("total %d files", len(files))
 }
 
-func TestSearch(t *testing.T) {
-	files, err := db.Search("novel", "23", "foo", "[bar]{0,3}")
+func TestSearchDir(t *testing.T) {
+	files, err := db.SearchDir("novel", "23", "foo", "[bar]{0,3}")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("total %d files", len(files))
+}
+
+func TestSearchDB(t *testing.T) {
+	files, err := db.SearchDB("novel", "foo", "[bar]{0,3}")
 	if err != nil {
 		t.Fatal(err)
 	}

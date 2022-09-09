@@ -42,7 +42,13 @@ func main() {
     if err != nil {
         panic(err)
     }
+
+    items, err := db.SearchDB("novel")
+    if err != nil {
+        panic(err)
+    }
+    println(items)
 }
 ```
 
-**剩余方法**请查看源码
+**剩余方法**请查看[测试](db_test.go)或源码
