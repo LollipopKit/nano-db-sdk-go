@@ -193,11 +193,16 @@ func (db *DB) DeleteDir(dbName, dir string) error {
 // 搜索某个dir内，所有[gjson.Get(_,p).Exists() == true]的FILE。
 // 如果正则不为空，仅返回正则匹配成功的FILE。
 func (db *DB) Search(dbName, dir, gjsonPath, valueRegex string) ([]any, error) {
-	p := fmt.Sprintf("%s/%s?path=%s&value=%s", dbName, dir, gjsonPath, valueRegex)
-	data, err := db.httpDo("POST", p, nil)
+	d := map[string]string{
+		"path": gjsonPath,
+		"regex": valueRegex,
+	}
+	b, err := json.Marshal(d)
+	data, err := db.httpDo("POST", dbName + "/" + dir, b)
 	if err != nil {
 		return nil, err
 	}
+	
 	var resp Resp
 	err = json.Unmarshal(data, &resp)
 	if err != nil {
