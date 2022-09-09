@@ -18,6 +18,6 @@ func NewDB(url, cookie string) *DB {
 }
 
 type Resp struct {
-	Code int         `json:"code"`
-	Data interface{} `json:"data"`
+	Code int `json:"code"`
+	Data any `json:"data"`
 }

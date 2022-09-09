@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	dbUrl = "http://localhost:3777"
-	dbCookie = "n=bm92ZWw=; s=5bde31dc803625bcd0098e6e3d6bd07734dc8"
-	rwdFilePath = "novel/23/27145"
+	dbUrl          = "http://localhost:3777"
+	dbCookie       = "n=bm92ZWw=; s=5bde31dc803625bcd0098e6e3d6bd07734dc8"
+	rwdFilePath    = "novel/23/27145"
 	noSuchFilePath = "novel/23/27146"
 )
 
@@ -18,7 +18,7 @@ var (
 )
 
 func TestWrite(t *testing.T) {
-	data := map[string]interface{}{
+	data := map[string]any{
 		"foo": "bar",
 	}
 	err := db.Write(rwdFilePath, data)
@@ -29,7 +29,7 @@ func TestWrite(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
-	var data map[string]interface{}
+	var data map[string]any
 	err := db.Read(rwdFilePath, &data)
 	if err != nil {
 		t.Fatal(err)
@@ -46,7 +46,7 @@ func TestDelete(t *testing.T) {
 }
 
 func TestReadNoSuchFile(t *testing.T) {
-	var data map[string]interface{}
+	var data map[string]any
 	err := db.Read(noSuchFilePath, &data)
 	if err == nil {
 		t.Fatal("should be error")
@@ -72,6 +72,14 @@ func TestDirs(t *testing.T) {
 
 func TestFiles(t *testing.T) {
 	files, err := db.Files("novel", "23")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("total %d files", len(files))
+}
+
+func TestSearch(t *testing.T) {
+	files, err := db.Search("novel", "23", "foo", "[bar]{0,3}")
 	if err != nil {
 		t.Fatal(err)
 	}

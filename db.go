@@ -36,9 +36,8 @@ func (db *DB) Status() (status string, err error) {
 
 	return
 }
-	
 
-func (db *DB) Read(path string, mod interface{}) (err error) {
+func (db *DB) Read(path string, mod any) (err error) {
 	data, err := db.httpDo("GET", path, nil)
 	if err != nil {
 		return
@@ -60,7 +59,7 @@ func (db *DB) Read(path string, mod interface{}) (err error) {
 	return json.Unmarshal(data, mod)
 }
 
-func (db *DB) Write(path string, mod interface{}) error {
+func (db *DB) Write(path string, mod any) error {
 	data, err := json.Marshal(mod)
 	if err != nil {
 		return err
@@ -85,7 +84,7 @@ func (db *DB) Delete(path string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	var resp Resp
 	err = json.Unmarshal(data, &resp)
 	if err != nil {
@@ -189,4 +188,34 @@ func (db *DB) DeleteDir(dbName, dir string) error {
 		return errors.New(resp.Data.(string))
 	}
 	return nil
+}
+
+// 搜索某个dir内，所有[gjson.Get(_,p).Exists() == true]的FILE。
+// 如果正则不为空，仅返回正则匹配成功的FILE。
+func (db *DB) Search(dbName, dir, gjsonPath, valueRegex string) ([]any, error) {
+	p := fmt.Sprintf("%s/%s?path=%s&value=%s", dbName, dir, gjsonPath, valueRegex)
+	data, err := db.httpDo("POST", p, nil)
+	if err != nil {
+		return nil, err
+	}
+	var resp Resp
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return nil, err
+	}
+	if resp.Code != 200 {
+		return nil, errors.New(resp.Data.(string))
+	}
+
+	dataStr, err := json.Marshal(resp.Data)
+	if err != nil {
+		return nil, err
+	}
+
+	var datas []any
+	err = json.Unmarshal(dataStr, &datas)
+	if err == nil {
+		return datas, nil
+	}
+	return nil, errors.New("data type error: " + resp.Data.(string))
 }
