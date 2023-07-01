@@ -3,7 +3,7 @@ package nanodbsdkgo_test
 import (
 	"testing"
 
-	nanodbsdkgo "git.lolli.tech/lollipopkit/nano-db-sdk-go"
+	nanodbsdkgo "github.com/lollipopkit/nano-db-sdk-go"
 )
 
 const (

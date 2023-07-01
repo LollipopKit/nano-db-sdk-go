@@ -1,4 +1,4 @@
-module git.lolli.tech/lollipopkit/nano-db-sdk-go
+module github.com/lollipopkit/nano-db-sdk-go
 
 go 1.18
 
