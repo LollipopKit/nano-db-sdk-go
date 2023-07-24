@@ -77,7 +77,7 @@ func TestFiles(t *testing.T) {
 }
 
 func TestDeleteDir(t *testing.T) {
-	err := db.DeleteDir("novel", "23")
+	err := db.Delete("novel", "23")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,7 +85,7 @@ func TestDeleteDir(t *testing.T) {
 }
 
 func TestDeleteDB(t *testing.T) {
-	err := db.DeleteDB("novel")
+	err := db.Delete("novel")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -15,8 +15,8 @@ func (cl *client) Alive() bool {
 	return err == nil
 }
 
-func (cl *client) Read(db, dir, file string) (data []byte, err error) {
-	return cl.httpDo("GET", path.Join(db, dir, file), nil)
+func (cl *client) Read(paths... string) (data []byte, err error) {
+	return cl.httpDo("GET", path.Join(paths...), nil)
 }
 
 func (cl *client) Write(db, dir, file string, data []byte) error {
@@ -24,8 +24,8 @@ func (cl *client) Write(db, dir, file string, data []byte) error {
 	return err
 }
 
-func (cl *client) Delete(db, dir, file string) error {
-	_, err := cl.httpDo("DELETE", path.Join(db, dir, file), nil)
+func (cl *client) Delete(paths... string) error {
+	_, err := cl.httpDo("DELETE", path.Join(paths...), nil)
 	return err
 }
 
@@ -47,14 +47,4 @@ func (cl *client) Files(db, dir string) ([]string, error) {
 
 	var strs []string
 	return strs, json.Unmarshal(data, &strs)
-}
-
-func (cl *client) DeleteDB(db string) error {
-	_, err := cl.httpDo("DELETE", db, nil)
-	return err
-}
-
-func (cl *client) DeleteDir(db, dir string) error {
-	_, err := cl.httpDo("DELETE", path.Join(db, dir), nil)
-	return err
 }
