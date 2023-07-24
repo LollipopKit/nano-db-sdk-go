@@ -1,7 +1,6 @@
 package ndb_test
 
 import (
-	"encoding/json"
 	"testing"
 
 	"github.com/lollipopkit/nano-db-sdk-go"
@@ -17,11 +16,7 @@ var (
 )
 
 func TestWrite(t *testing.T) {
-	data := map[string]any{
-		"foo": "bar",
-	}
-	j, err := json.Marshal(data)
-	err = db.Write("novel", "23", "27145", j)
+	err := db.Write("novel", "23", "27145", []byte("hello world"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,7 +56,7 @@ func TestDeleteNoSuchFile(t *testing.T) {
 }
 
 func TestDirs(t *testing.T) {
-	dirs, err := db.Dirs("novel")
+	dirs, err := db.Read("novel")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -69,11 +64,11 @@ func TestDirs(t *testing.T) {
 }
 
 func TestFiles(t *testing.T) {
-	files, err := db.Files("novel", "23")
+	files, err := db.Read("novel", "23")
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Logf("total %d files", len(files))
+	t.Log(string(files))
 }
 
 func TestDeleteDir(t *testing.T) {
@@ -93,13 +88,13 @@ func TestDeleteDB(t *testing.T) {
 }
 
 func TestIllegalPath(t *testing.T) {
-	_, err := db.Read("novel", "../", "27145")
+	_, err := db.Do("GET", "novel/../../123", nil)
 	if err == nil {
 		t.Fatal("should be error")
 	}
 	t.Log(err)
 
-	_, err = db.Dirs("../")
+	_, err = db.Read(".")
 	if err == nil {
 		t.Fatal("should be error")
 	}
