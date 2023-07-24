@@ -1,23 +1,18 @@
-package nanodbsdkgo
+package ndb
 
 import "strings"
 
-type DB struct {
-	url    string
-	cookie string
+type client struct {
+	url   string
+	token string
 }
 
-func NewDB(url, cookie string) *DB {
+func NewClient(url, cookie string) *client {
 	if !strings.HasSuffix(url, "/") {
 		url += "/"
 	}
-	return &DB{
-		url:    url,
-		cookie: cookie,
+	return &client{
+		url:   url,
+		token: cookie,
 	}
-}
-
-type Resp struct {
-	Code int `json:"code"`
-	Data any `json:"data"`
 }

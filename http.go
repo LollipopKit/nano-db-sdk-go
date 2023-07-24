@@ -1,33 +1,17 @@
-package nanodbsdkgo
+package ndb
 
 import (
-	"bytes"
-	"io/ioutil"
-	"net/http"
-	"strings"
+	"fmt"
+
+	"github.com/lollipopkit/gommon/http"
 )
 
-var (
-	client = &http.Client{}
-)
-
-func (db *DB) httpDo(fn, path string, body []byte) (data []byte, err error) {
-	path = strings.Trim(path, "/")
-	path = strings.ReplaceAll(path, "//", "/")
-	req, err := http.NewRequest(fn, db.url+path, bytes.NewReader(body))
-	if err != nil {
-		return
+func (db *client) httpDo(fn, path string, body []byte) (data []byte, err error) {
+	resp, code, err := http.Do(fn, db.url+path, body, map[string]string{
+		"NanoDB": db.token,
+	})
+	if code != 200 {
+		err = fmt.Errorf("code: %d, resp: %s", code, string(resp))
 	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Cookie", db.cookie)
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return
-	}
-
-	defer resp.Body.Close()
-
-	return ioutil.ReadAll(resp.Body)
+	return resp, err
 }

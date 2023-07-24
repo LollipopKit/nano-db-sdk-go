@@ -1,27 +1,27 @@
-package nanodbsdkgo_test
+package ndb_test
 
 import (
+	"encoding/json"
 	"testing"
 
-	nanodbsdkgo "github.com/lollipopkit/nano-db-sdk-go"
+	"github.com/lollipopkit/nano-db-sdk-go"
 )
 
 const (
-	dbUrl          = "http://localhost:3777"
-	dbCookie       = "n=bm92ZWw=; s=5bde31dc803625bcd0098e6e3d6bd07734dc8"
-	rwdFilePath    = "novel/23/27145"
-	noSuchFilePath = "novel/23/27146"
+	dbUrl          = "http://localhost:3770"
+	dbCookie       = "FHYmGdNwfiJngvF2z"
 )
 
 var (
-	db = nanodbsdkgo.NewDB(dbUrl, dbCookie)
+	db = ndb.NewClient(dbUrl, dbCookie)
 )
 
 func TestWrite(t *testing.T) {
 	data := map[string]any{
 		"foo": "bar",
 	}
-	err := db.Write(rwdFilePath, data)
+	j, err := json.Marshal(data)
+	err = db.Write("novel", "23", "27145", j)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -29,16 +29,15 @@ func TestWrite(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
-	var data map[string]any
-	err := db.Read(rwdFilePath, &data)
+	data, err := db.Read("novel", "23", "27145")
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(data)
+	t.Log(string(data))
 }
 
 func TestDelete(t *testing.T) {
-	err := db.Delete(rwdFilePath)
+	err := db.Delete("novel", "23", "27145")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -46,8 +45,7 @@ func TestDelete(t *testing.T) {
 }
 
 func TestReadNoSuchFile(t *testing.T) {
-	var data map[string]any
-	err := db.Read(noSuchFilePath, &data)
+	_, err := db.Read("novel", "23", "27146")
 	if err == nil {
 		t.Fatal("should be error")
 	}
@@ -55,7 +53,7 @@ func TestReadNoSuchFile(t *testing.T) {
 }
 
 func TestDeleteNoSuchFile(t *testing.T) {
-	err := db.Delete(noSuchFilePath)
+	err := db.Delete("novel", "23", "27146")
 	if err == nil {
 		t.Fatal("should be error")
 	}
@@ -78,18 +76,32 @@ func TestFiles(t *testing.T) {
 	t.Logf("total %d files", len(files))
 }
 
-func TestSearchDir(t *testing.T) {
-	files, err := db.SearchDir("novel", "23", "foo", "[bar]{0,3}")
+func TestDeleteDir(t *testing.T) {
+	err := db.DeleteDir("novel", "23")
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Logf("total %d files", len(files))
+	t.Log("ok")
 }
 
-func TestSearchDB(t *testing.T) {
-	files, err := db.SearchDB("novel", "foo", "[bar]{0,3}")
+func TestDeleteDB(t *testing.T) {
+	err := db.DeleteDB("novel")
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Logf("total %d files", len(files))
+	t.Log("ok")
+}
+
+func TestIllegalPath(t *testing.T) {
+	_, err := db.Read("novel", "../", "27145")
+	if err == nil {
+		t.Fatal("should be error")
+	}
+	t.Log(err)
+
+	_, err = db.Dirs("../")
+	if err == nil {
+		t.Fatal("should be error")
+	}
+	t.Log(err)
 }
